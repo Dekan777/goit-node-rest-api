@@ -97,18 +97,3 @@ export async function updateContactById(id, data) {
 }
 
 
-// export const updateContactById = async (id, data) => {
-//     const contact = await listContacts();
-
-//     const index = contact.findIndex(item => item.id === id);
-//     if (index === -1) {
-//         return null;
-//     }
-
-//     contact[index] = { ...contact[index], ...data };
-
-//     await fs.writeFile(contactsPath, JSON.stringify(contact, null, 2));
-
-//     return contact[index];
-// };
-
