@@ -22,7 +22,7 @@ export async function listContacts() {
 
 // Повертає об'єкт контакту з таким id. Повертає 
 //  null, якщо контакт з таким id не знайдений.
-async function getContactById(contactId) {
+export async function getContactById(contactId) {
     try {
         const contacts = await listContacts();
         return contacts.find(contact => contact.id === contactId) || null;
