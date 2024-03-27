@@ -69,4 +69,46 @@ export async function addContact(name, email, phone) {
     }
 }
 
+export async function updateContactById(id, data) {
+    try {
+        // Получаем список контактов
+        let contacts = await listContacts();
+
+        // Находим индекс контакта с указанным id
+        const index = contacts.findIndex(item => item.id === id);
+
+        // Если контакт с указанным id не найден, возвращаем null
+        if (index === -1) {
+            return null;
+        }
+
+        // Обновляем контакт данными из объекта data
+        contacts[index] = { ...contacts[index], ...data };
+
+        // Перезаписываем файл с обновленным списком контактов
+        await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+
+        // Возвращаем обновленный контакт
+        return contacts[index];
+    } catch (error) {
+        // Если произошла ошибка, возвращаем null
+        return null;
+    }
+}
+
+
+// export const updateContactById = async (id, data) => {
+//     const contact = await listContacts();
+
+//     const index = contact.findIndex(item => item.id === id);
+//     if (index === -1) {
+//         return null;
+//     }
+
+//     contact[index] = { ...contact[index], ...data };
+
+//     await fs.writeFile(contactsPath, JSON.stringify(contact, null, 2));
+
+//     return contact[index];
+// };
 

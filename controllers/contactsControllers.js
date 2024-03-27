@@ -2,11 +2,12 @@ import {
     listContacts,
     getContactById,
     addContact,
-
-
+    removeContact,
+    updateContactById
 } from "../services/contactsServices.js";
 import { createContactSchema } from '../schemas/contactsSchemas.js'
-// import Joi from "joi";
+import validateBody from '../helpers/validateBody.js'
+import HttpError from '../helpers/HttpError.js'
 
 export const getAllContacts = async (req, res, next) => {
     try {
@@ -42,6 +43,7 @@ export const createContact = async (req, res, next) => {
     try {
         // Валидация входных данных
         const { error } = createContactSchema.validate(req.body);
+
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
         }
@@ -69,8 +71,40 @@ export const createContact = async (req, res, next) => {
 
 
 
-export const deleteContact = (req, res, next) => { };
+export const deleteContact = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const result = await removeContact(id);
+
+        if (!result) {
+            throw HttpError(404, `Not found`);
+        }
+        res.status(200).json(result);
 
 
-export const updateContact = (req, res, next) => { };
+    } catch (error) {
+        next(error)
+    }
+};
+
+
+export const updateContact = [
+
+    validateBody(createContactSchema),
+    async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const result = await updateContactById(id, req.body);
+
+            if (!result) {
+                throw HttpError(404, `Not found`);
+            }
+
+            res.json(result);
+        } catch (error) {
+            next(error);
+        }
+    }
+];
+
 
