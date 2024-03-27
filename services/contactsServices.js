@@ -1,6 +1,6 @@
+import fs from 'fs/promises';
+import path from 'path';
 
-const fs = require('fs/promises');
-const path = require('path');
 
 function generateUniqueId(length = 10) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -10,18 +10,15 @@ function generateUniqueId(length = 10) {
     }
     return result;
 }
-const contactsPath = path.join(__dirname, 'db', 'contacts.json');
 
+const contactsPath = path.join("db", "contacts.json");
+console.log(contactsPath);
 
 // Повертає масив контактів.
-async function listContacts() {
-    try {
-        const data = await fs.readFile(contactsPath);
-        return JSON.parse(data);
-    } catch (error) {
-        return [];
-    }
-}
+export async function listContacts() {
+    const data = await fs.readFile(contactsPath);
+    return JSON.parse(data);
+};
 
 // Повертає об'єкт контакту з таким id. Повертає 
 //  null, якщо контакт з таким id не знайдений.
@@ -73,4 +70,3 @@ async function addContact(name, email, phone) {
 }
 
 
-module.exports = { listContacts, getContactById, removeContact, addContact };
