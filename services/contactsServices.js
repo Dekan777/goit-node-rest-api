@@ -17,6 +17,7 @@ console.log(contactsPath);
 // Повертає масив контактів.
 export async function listContacts() {
     const data = await fs.readFile(contactsPath);
+    // console.log(data);
     return JSON.parse(data);
 };
 
