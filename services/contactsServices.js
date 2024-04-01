@@ -24,25 +24,10 @@ export const getContactById = async contactId => {
     return Contact.findById(contactId);
 };
 
+export const removeContact = async contactId => {
+    return Contact.findByIdAndDelete(contactId);
+};
 
-// Повертає об'єкт видаленого 
-//  контакту. Повертає null, якщо контакт 
-//  з таким id не знайдений.
-export async function removeContact(contactId) {
-    try {
-        let contacts = await listContacts();
-        const removedContact = contacts.find(contact => contact.id === contactId);
-        if (!removedContact) return null;
-
-        contacts = contacts.filter(contact => contact.id !== contactId);
-        await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-        return removedContact;
-    } catch (error) {
-        return null;
-    }
-
-}
 // Повертає об'єкт доданого контакту (з id).
 export async function addContact(name, email, phone) {
     try {
