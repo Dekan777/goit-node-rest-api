@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-
+import { Contact } from '../models/contacts.js';
 
 function generateUniqueId(length = 10) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -11,15 +11,14 @@ function generateUniqueId(length = 10) {
     return result;
 }
 
-const contactsPath = path.join("db", "contacts.json");
-console.log(contactsPath);
+// const contactsPath = path.join("db", "contacts.json");
+
 
 // Повертає масив контактів.
-export async function listContacts() {
-    const data = await fs.readFile(contactsPath);
-    // console.log(data);
-    return JSON.parse(data);
+export const listContacts = async () => {
+    return Contact.find({});
 };
+
 
 // Повертає об'єкт контакту з таким id. Повертає 
 //  null, якщо контакт з таким id не знайдений.
