@@ -1,15 +1,4 @@
-import fs from 'fs/promises';
-import path from 'path';
 import { Contact } from '../models/contacts.js';
-
-function generateUniqueId(length = 10) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
 
 //GET
 export const listContacts = async () => {
@@ -38,3 +27,10 @@ export const updateContactById = async (contactId, data) => {
     });
 };
 
+//PATCH
+export const updateFavoriteStatus = async (contactId, data) => {
+    const status = { favorite: data };
+    return Contact.findByIdAndUpdate(contactId, status, {
+        new: true,
+    });
+};

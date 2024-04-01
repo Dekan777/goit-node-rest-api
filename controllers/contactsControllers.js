@@ -3,7 +3,8 @@ import {
     getContactById,
     addContact,
     removeContact,
-    updateContactById
+    updateContactById,
+    updateFavoriteStatus
 } from "../services/contactsServices.js";
 
 import { createContactSchema } from '../schemas/contactsSchemas.js'
@@ -106,10 +107,50 @@ export const updateContact = async (req, res, next) => {
     }
 };
 
+// export const updateStatusContact = async (req, res, next) => {
+//     try {
+//         const { id } = req.params;
+//         const favorite = req.body.favorite;
 
-//--------------------------------------
+//         const result = await updateFavoriteStatus(id, favorite);
+
+//         if (!result) {
+//             throw new HttpError(404, 'Not found');
+//         }
+
+//         res.status(200).json(result);
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+// export const updateStatusContact = async (req, res) => {
+//     const { id } = req.params;
+//     const favorite = req.body.favorite;
+
+//     const result = await updateFavoriteStatus(id, favorite);
+
+//     if (!result) {
+//         throw HttpError(404, 'Not found');
+//     }
+
+//     res.status(200).json(result);
+// };
 
 
+
+export const updateStatusContact = async (req, res) => {
+    const { id } = req.params;
+    const favorite = req.body.favorite;
+
+    const result = await updateFavoriteStatus(id, favorite);
+
+    if (!result) {
+        throw HttpError(404, 'Not found');
+    }
+
+    res.status(200).json(result);
+};
 
 
 
