@@ -31,35 +31,10 @@ export const addContact = async data => {
     return Contact.create(data);
 };
 
-
-
-
-
-export async function updateContactById(id, data) {
-    try {
-        // Получаем список контактов
-        let contacts = await listContacts();
-
-        // Находим индекс контакта с указанным id
-        const index = contacts.findIndex(item => item.id === id);
-
-        // Если контакт с указанным id не найден, возвращаем null
-        if (index === -1) {
-            return null;
-        }
-
-        // Обновляем контакт данными из объекта data
-        contacts[index] = { ...contacts[index], ...data };
-
-        // Перезаписываем файл с обновленным списком контактов
-        await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-        // Возвращаем обновленный контакт
-        return contacts[index];
-    } catch (error) {
-        // Если произошла ошибка, возвращаем null
-        return null;
-    }
-}
-
+//PUT ID
+export const updateContactById = async (contactId, data) => {
+    return Contact.findByIdAndUpdate(contactId, data, {
+        new: true,
+    });
+};
 

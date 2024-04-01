@@ -85,17 +85,7 @@ export const getOneContact = async (req, res, next) => {
 };
 
 
-//--------------------------------------
 
-
-
-
-
-
-
-
-
-//PUT
 export const updateContact = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -115,4 +105,15 @@ export const updateContact = async (req, res, next) => {
         next(error)
     }
 };
+
+
+//--------------------------------------
+
+
+
+
+
+
+
+
 
