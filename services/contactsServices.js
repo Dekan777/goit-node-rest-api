@@ -16,7 +16,7 @@ function generateUniqueId(length = 10) {
 
 // Повертає масив контактів.
 export const listContacts = async () => {
-    return Contact.find({});
+    return await Contact.find({});
 };
 
 
