@@ -7,7 +7,7 @@ import {
 } from "../services/contactsServices.js";
 
 import { createContactSchema } from '../schemas/contactsSchemas.js'
-import validateBody from '../helpers/validateBody.js'
+
 import HttpError from '../helpers/HttpError.js'
 
 export const getAllContacts = async (req, res, next) => {
@@ -69,9 +69,6 @@ export const createContact = async (req, res, next) => {
     }
 };
 
-
-//--------------------------------------
-
 export const getOneContact = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -86,6 +83,10 @@ export const getOneContact = async (req, res, next) => {
         next(error)
     }
 };
+
+
+//--------------------------------------
+
 
 
 

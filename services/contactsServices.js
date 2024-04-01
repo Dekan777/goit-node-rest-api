@@ -11,12 +11,17 @@ function generateUniqueId(length = 10) {
     return result;
 }
 
-
+//GET
 export const listContacts = async () => {
     return await Contact.find({});
 };
 
+//GET ID
+export const getContactById = async contactId => {
+    return Contact.findById(contactId);
+};
 
+//DEL
 export const removeContact = async contactId => {
     return Contact.findByIdAndDelete(contactId);
 };
@@ -27,11 +32,6 @@ export const addContact = async data => {
 };
 
 
-// Повертає об'єкт контакту з таким id. Повертає 
-//  null, якщо контакт з таким id не знайдений.
-export const getContactById = async contactId => {
-    return Contact.findById(contactId);
-};
 
 
 
