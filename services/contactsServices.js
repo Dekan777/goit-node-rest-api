@@ -11,8 +11,6 @@ function generateUniqueId(length = 10) {
     return result;
 }
 
-// const contactsPath = path.join("db", "contacts.json");
-
 
 // Повертає масив контактів.
 export const listContacts = async () => {
@@ -22,14 +20,10 @@ export const listContacts = async () => {
 
 // Повертає об'єкт контакту з таким id. Повертає 
 //  null, якщо контакт з таким id не знайдений.
-export async function getContactById(contactId) {
-    try {
-        const contacts = await listContacts();
-        return contacts.find(contact => contact.id === contactId) || null;
-    } catch (error) {
-        return null;
-    }
-}
+export const getContactById = async contactId => {
+    return Contact.findById(contactId);
+};
+
 
 // Повертає об'єкт видаленого 
 //  контакту. Повертає null, якщо контакт 
