@@ -12,9 +12,18 @@ function generateUniqueId(length = 10) {
 }
 
 
-// Повертає масив контактів.
 export const listContacts = async () => {
     return await Contact.find({});
+};
+
+
+export const removeContact = async contactId => {
+    return Contact.findByIdAndDelete(contactId);
+};
+
+//POST
+export const addContact = async data => {
+    return Contact.create(data);
 };
 
 
@@ -24,29 +33,7 @@ export const getContactById = async contactId => {
     return Contact.findById(contactId);
 };
 
-export const removeContact = async contactId => {
-    return Contact.findByIdAndDelete(contactId);
-};
 
-// Повертає об'єкт доданого контакту (з id).
-export async function addContact(name, email, phone) {
-    try {
-        let contacts = await listContacts();
-        const newContact = {
-            id: generateUniqueId(),
-            name,
-            email,
-            phone
-        };
-
-        contacts.push(newContact);
-        await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-        return newContact;
-    } catch (error) {
-        return null;
-    }
-}
 
 export async function updateContactById(id, data) {
     try {

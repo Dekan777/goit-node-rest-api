@@ -19,7 +19,7 @@ const contactSchema = new Schema(
             default: false,
         },
     },
-    { versionKey: false }
+
 );
 
 export const Contact = model('contact', contactSchema);
