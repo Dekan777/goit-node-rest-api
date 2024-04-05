@@ -65,7 +65,7 @@ export const createContact = async (req, res, next) => {
         }
 
         // Отправка успешного ответа с добавленным контактом
-        res.status(201).json(result);
+        res.status(200).json(result);
 
     } catch (error) {
         // Передача ошибки обработчику ошибок
