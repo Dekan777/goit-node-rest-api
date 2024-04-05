@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
+mongoose.set('strictQuery', true);
 import contactsRouter from "./routes/contactsRouter.js";
 import 'dotenv/config';
 

@@ -14,6 +14,7 @@ import {
 } from '../schemas/contactsSchemas.js'
 
 import HttpError from '../helpers/HttpError.js'
+import { isValidObjectId } from 'mongoose';
 
 export const getAllContacts = async (req, res, next) => {
     try {
@@ -76,6 +77,12 @@ export const createContact = async (req, res, next) => {
 export const getOneContact = async (req, res, next) => {
     try {
         const { id } = req.params;
+
+        // Перевірка на валідність айді
+        if (!isValidObjectId(id)) {
+            throw HttpError(400, `Invalid ID`);
+
+        }
         const result = await getContactById(id);
 
         if (!result) {
