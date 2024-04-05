@@ -126,23 +126,26 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
     try {
         const { id } = req.params;
+
+        if (!isValidObjectId(id)) {
+            throw new Error('Invalid ID');
+        }
+
         const { error } = toggleFavoriteSchema.validate(req.body);
 
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
-
         }
 
         const { favorite } = req.body;
         const result = await updateFavoriteStatus(id, favorite);
 
         if (!result) {
-            throw new HttpError(404, 'Not found');
-
+            return res.status(404).json({ message: 'Not found' });
         }
-        res.status(200).json(result);
 
+        res.status(200).json(result);
     } catch (error) {
         next(error);
     }
-};
+}
