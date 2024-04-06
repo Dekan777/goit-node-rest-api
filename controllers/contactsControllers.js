@@ -46,7 +46,7 @@ export const deleteContact = async (req, res, next) => {
 
 export const createContact = async (req, res, next) => {
     try {
-        // Валидация входных данных
+
         const { error } = createContactSchema.validate(req.body);
 
         if (error) {
@@ -78,13 +78,7 @@ export const getOneContact = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        // Перевірка на валідність айді
-        if (!isValidObjectId(id)) {
-            throw HttpError(400, `Invalid ID`);
-
-        }
         const result = await getContactById(id);
-
         if (!result) {
             throw HttpError(404, `Not found`);
         }
@@ -107,13 +101,12 @@ export const updateContact = async (req, res, next) => {
         }
 
         if (Object.keys(req.body).length === 0) {
-
-            throw new HttpError(400, 'Body must have at least one field');
+            return res.status(400).json({ message: 'Body must have at least one field' });
         }
         const result = await updateContactById(id, req.body);
         if (!result) {
 
-            throw new HttpError(404, 'Not found');
+            throw HttpError(404, 'Not found');
         }
 
         res.json(result);
@@ -126,10 +119,6 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
     try {
         const { id } = req.params;
-
-        if (!isValidObjectId(id)) {
-            throw new Error('Invalid ID');
-        }
 
         const { error } = toggleFavoriteSchema.validate(req.body);
 

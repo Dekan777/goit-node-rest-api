@@ -6,7 +6,7 @@ mongoose.set('strictQuery', true);
 import contactsRouter from "./routes/contactsRouter.js";
 import 'dotenv/config';
 
-const { DB_HOST, PORT = 3000 } = process.env;
+const { DB_HOST, PORT = 3001 } = process.env;
 const app = express();
 
 app.use(morgan("tiny"));
