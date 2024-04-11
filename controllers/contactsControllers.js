@@ -3,11 +3,18 @@ import {
     getContactById,
     addContact,
     removeContact,
-    updateContactById
+    updateContactById,
+    updateFavoriteStatus
 } from "../services/contactsServices.js";
-import { createContactSchema } from '../schemas/contactsSchemas.js'
-import validateBody from '../helpers/validateBody.js'
+
+import {
+    createContactSchema,
+    updateContactSchema,
+    toggleFavoriteSchema
+} from '../schemas/contactsSchemas.js'
+
 import HttpError from '../helpers/HttpError.js'
+import { isValidObjectId } from 'mongoose';
 
 export const getAllContacts = async (req, res, next) => {
     try {
@@ -17,20 +24,19 @@ export const getAllContacts = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-
 };
 
 
-
-export const getOneContact = async (req, res, next) => {
+export const deleteContact = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const result = await getContactById(id);
+        const result = await removeContact(id);
 
         if (!result) {
             throw HttpError(404, `Not found`);
+
         }
-        res.json(result);
+        res.status(200).json(result);
 
     } catch (error) {
         next(error)
@@ -38,10 +44,9 @@ export const getOneContact = async (req, res, next) => {
 };
 
 
-
 export const createContact = async (req, res, next) => {
     try {
-        // Валидация входных данных
+
         const { error } = createContactSchema.validate(req.body);
 
         if (error) {
@@ -52,7 +57,7 @@ export const createContact = async (req, res, next) => {
         const { name, email, phone } = req.body;
 
         // Добавление контакта
-        const result = await addContact(name, email, phone);
+        const result = await addContact({ name, email, phone });
 
         // Проверка успешности операции добавления контакта
         if (!result) {
@@ -61,7 +66,7 @@ export const createContact = async (req, res, next) => {
         }
 
         // Отправка успешного ответа с добавленным контактом
-        res.status(201).json(result);
+        res.status(200).json(result);
 
     } catch (error) {
         // Передача ошибки обработчику ошибок
@@ -69,42 +74,67 @@ export const createContact = async (req, res, next) => {
     }
 };
 
-
-
-export const deleteContact = async (req, res, next) => {
+export const getOneContact = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const result = await removeContact(id);
 
+        const result = await getContactById(id);
         if (!result) {
             throw HttpError(404, `Not found`);
         }
-        res.status(200).json(result);
-
+        res.json(result);
 
     } catch (error) {
         next(error)
     }
 };
 
-//PUT
+
+
 export const updateContact = async (req, res, next) => {
     try {
         const { id } = req.params;
+        const { error } = updateContactSchema.validate(req.body);
 
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
 
         if (Object.keys(req.body).length === 0) {
-            throw HttpError(400, `Body must have at least one field`);
+            return res.status(400).json({ message: 'Body must have at least one field' });
         }
         const result = await updateContactById(id, req.body);
-
         if (!result) {
-            throw HttpError(404, `Not found`);
+
+            throw HttpError(404, 'Not found');
         }
 
         res.json(result);
     } catch (error) {
-        next(error)
+        next(error);
     }
 };
 
+
+export const updateStatusContact = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const { error } = toggleFavoriteSchema.validate(req.body);
+
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
+
+        const { favorite } = req.body;
+        const result = await updateFavoriteStatus(id, favorite);
+
+        if (!result) {
+            return res.status(404).json({ message: 'Not found' });
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
