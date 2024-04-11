@@ -7,7 +7,7 @@ import contactsRouter from "./routes/contactsRouter.js";
 import 'dotenv/config';
 import authRouter from './routes/authRouter.js';
 
-const { DB_HOST, PORT = 3001 } = process.env;
+const { DB_HOST, PORT = 3000 } = process.env;
 const app = express();
 
 app.use(morgan("tiny"));

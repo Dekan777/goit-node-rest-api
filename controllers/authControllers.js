@@ -1,5 +1,6 @@
 import HttpError from '../helpers/HttpError.js';
 import ctrlWrapper from '../middlewares/ctrlWrapper.js';
+import * as authServices from '../services/authServices.js';
 import bcrypt from 'bcrypt';
 
 
