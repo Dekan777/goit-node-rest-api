@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { emailRegepxp } from '../constants/user-constants.js';
+import Joi from 'joi';
 
 
 const userSchema = new Schema(
@@ -26,3 +27,8 @@ const userSchema = new Schema(
     },
     { versionKey: false }
 );
+
+const User = model('user', userSchema);
+
+
+export default User;
