@@ -75,5 +75,4 @@ export default {
     signin: ctrlWrapper(signin),
     getCurrent: ctrlWrapper(getCurrent),
     signout: ctrlWrapper(signout)
-
 };
