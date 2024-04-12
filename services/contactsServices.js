@@ -1,8 +1,8 @@
 import { Contact } from '../models/contacts.js';
 
 //GET
-export const listContacts = async () => {
-    return await Contact.find({});
+export const listContacts = async (filter = {}) => {
+    return Contact.find(filter).populate('owner', 'email subscription');
 };
 
 //GET ID

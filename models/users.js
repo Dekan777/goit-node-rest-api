@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { emailRegepxp } from '../constants/user-constants.js';
-import Joi from 'joi';
+
 
 
 const userSchema = new Schema(
