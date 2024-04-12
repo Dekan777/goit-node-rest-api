@@ -62,9 +62,18 @@ const getCurrent = async (req, res) => {
     });
 };
 
+const signout = async (req, res) => {
+    const { _id } = req.user;
+
+    await authServices.updateUser({ _id }, { token: '' });
+
+    res.status(204).json();
+};
+
 export default {
     signup: ctrlWrapper(signup),
     signin: ctrlWrapper(signin),
     getCurrent: ctrlWrapper(getCurrent),
+    signout: ctrlWrapper(signout)
 
 };
