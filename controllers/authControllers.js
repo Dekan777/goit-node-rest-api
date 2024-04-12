@@ -2,6 +2,8 @@ import HttpError from '../helpers/HttpError.js';
 import ctrlWrapper from '../middlewares/ctrlWrapper.js';
 import * as authServices from '../services/authServices.js';
 import bcrypt from 'bcrypt';
+import jwt from "jsonwebtoken";
+const { JWT_SECRET } = process.env;
 
 
 const signup = async (req, res) => {
@@ -24,7 +26,35 @@ const signup = async (req, res) => {
     });
 };
 
+const signin = async (req, res) => {
+    const { email, password } = req.body;
+    const user = await authServices.findUser({ email });
+    if (!user) {
+        throw HttpError(401, 'Email or password is invalid');
+    }
+
+    const passwordCompare = await bcrypt.compare(password, user.password);
+    if (!passwordCompare) {
+        throw HttpError(401, 'Email or password is invalid');
+    }
+
+    const { _id: id } = user;
+
+    const payload = {
+        id,
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '23h' });
+    const response = await authServices.updateUser({ _id: id }, { token });
+
+    res.json({
+        token,
+        user: response,
+    });
+};
+
 export default {
-    signup: ctrlWrapper(signup)
+    signup: ctrlWrapper(signup),
+    signin: ctrlWrapper(signin),
 
 };
