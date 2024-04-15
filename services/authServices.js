@@ -10,11 +10,11 @@ export const findUser = async user => {
 };
 
 export const findUserById = async id => {
-    return await User.findOne(id);
+    return await User.findById(id);
 };
 
 export const updateUser = async (user, data) => {
-    return await User.findOneAndDelete(user, data, {
+    return await User.findByIdAndUpdate(user, data, {
         returnDocument: 'after',
     }).select('email subscription -_id');
 };
