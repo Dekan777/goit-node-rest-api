@@ -5,32 +5,32 @@ export const listContacts = async (filter = {}) => {
     return Contact.find(filter).populate('owner', 'email subscription');
 };
 
-//GET ID
-export const getContactById = async contactId => {
-    return Contact.findOne(contactId);
+//GET BY ID
+export const getContactById = async ({ _id: contactId, owner }) => {
+    return Contact.findOne({ _id: contactId, owner });
 };
 
-//DEL
-export const removeContact = async contactId => {
-    return Contact.findOneAndDelete(contactId);
+//DELETE
+export const deleteContactById = async ({ _id: contactId, owner }) => {
+    return Contact.findOneAndDelete({ _id: contactId, owner });
 };
 
-//POST
-export const addContact = async data => {
-    return Contact.create(data);
+//CREATE
+export const createContact = async ({ _id: owner, ...data }) => {
+    return Contact.create({ ...data, owner });
 };
 
-//PUT ID
-export const updateContactById = async (contactId, data) => {
-    return Contact.findOneAndDelete(contactId, data, {
+//UPDATE BY ID
+export const updateContactById = async ({ _id: contactId, owner }, newData) => {
+    return Contact.findOneAndUpdate({ _id: contactId, owner }, newData, {
         new: true,
     });
 };
 
-//PATCH
-export const updateFavoriteStatus = async (contactId, data) => {
-    const status = { favorite: data };
-    return Contact.findOneAndDelete(contactId, status, {
+//UPDATE FAVORITE STATUS
+export const updateFavoriteStatusById = async ({ _id: contactId, owner }, newFavoriteStatus) => {
+    const status = { favorite: newFavoriteStatus };
+    return Contact.findOneAndUpdate({ _id: contactId, owner }, status, {
         new: true,
     });
 };
