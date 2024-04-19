@@ -1,140 +1,87 @@
-import {
-    listContacts,
-    getContactById,
-    addContact,
-    removeContact,
-    updateContactById,
-    updateFavoriteStatus
-} from "../services/contactsServices.js";
+import * as contactsService from '../services/contactsServices.js';
 
-import {
-    createContactSchema,
-    updateContactSchema,
-    toggleFavoriteSchema
-} from '../schemas/contactsSchemas.js'
+import HttpError from '../helpers/HttpError.js';
 
-import HttpError from '../helpers/HttpError.js'
-import { isValidObjectId } from 'mongoose';
+import ctrlWrapper from '../middlewares/ctrlWrapper.js';
 
-export const getAllContacts = async (req, res, next) => {
-    try {
-        const result = await listContacts();
-        res.json(result);
+const getAllContacts = async (req, res) => {
+    const { _id: owner } = req.user;
 
-    } catch (error) {
-        next(error)
-    }
+    const results = await contactsService.listContacts({ owner });
+    res.json(results);
 };
 
+const getOneContact = async (req, res) => {
+    const { id } = req.params;
+    const { _id: owner } = req.user;
 
-export const deleteContact = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const result = await removeContact(id);
+    const result = await contactsService.getContactById({ _id: id, owner });
 
-        if (!result) {
-            throw HttpError(404, `Not found`);
-
-        }
-        res.status(200).json(result);
-
-    } catch (error) {
-        next(error)
+    if (!result) {
+        throw HttpError(404, `Not found`);
     }
+
+    res.json(result);
 };
 
+const deleteContact = async (req, res) => {
+    const { id } = req.params;
+    const { _id: owner } = req.user;
 
-export const createContact = async (req, res, next) => {
-    try {
+    const result = await contactsService.removeContact({ _id: id, owner });
 
-        const { error } = createContactSchema.validate(req.body);
-
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
-
-        // Извлечение данных о контакте из запроса
-        const { name, email, phone } = req.body;
-
-        // Добавление контакта
-        const result = await addContact({ name, email, phone });
-
-        // Проверка успешности операции добавления контакта
-        if (!result) {
-            // Если контакт не был добавлен, создание исключения
-            throw HttpError(201, `Not found`);
-        }
-
-        // Отправка успешного ответа с добавленным контактом
-        res.status(200).json(result);
-
-    } catch (error) {
-        // Передача ошибки обработчику ошибок
-        next(error);
+    if (!result) {
+        throw HttpError(404, 'Not found');
     }
+
+    res.json(result);
 };
 
-export const getOneContact = async (req, res, next) => {
-    try {
-        const { id } = req.params;
+const createContact = async (req, res) => {
+    const { _id: owner } = req.user;
 
-        const result = await getContactById(id);
-        if (!result) {
-            throw HttpError(404, `Not found`);
-        }
-        res.json(result);
+    const result = await contactsService.addContact({ ...req.body, owner });
 
-    } catch (error) {
-        next(error)
-    }
+    res.status(201).json(result);
 };
 
+const updateContact = async (req, res) => {
+    const { id } = req.params;
+    const { _id: owner } = req.user;
 
+    const result = await contactsService.updateContactById(
+        { _id: id, owner },
+        req.body
+    );
 
-export const updateContact = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { error } = updateContactSchema.validate(req.body);
-
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
-
-        if (Object.keys(req.body).length === 0) {
-            return res.status(400).json({ message: 'Body must have at least one field' });
-        }
-        const result = await updateContactById(id, req.body);
-        if (!result) {
-
-            throw HttpError(404, 'Not found');
-        }
-
-        res.json(result);
-    } catch (error) {
-        next(error);
+    if (!result) {
+        throw HttpError(404, 'Not found');
     }
+    res.status(200).json(result);
 };
 
+const updateStatusContact = async (req, res) => {
+    const { id } = req.params;
+    const { _id: owner } = req.user;
+    const favorite = req.body.favorite;
 
-export const updateStatusContact = async (req, res, next) => {
-    try {
-        const { id } = req.params;
+    const result = await contactsService.updateFavoriteStatus(
+        { _id: id, owner },
+        favorite
+    );
 
-        const { error } = toggleFavoriteSchema.validate(req.body);
-
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
-
-        const { favorite } = req.body;
-        const result = await updateFavoriteStatus(id, favorite);
-
-        if (!result) {
-            return res.status(404).json({ message: 'Not found' });
-        }
-
-        res.status(200).json(result);
-    } catch (error) {
-        next(error);
+    if (!result) {
+        throw HttpError(404, 'Not found');
     }
-}
+
+    res.status(200).json(result);
+};
+
+export default {
+    getAllContacts: ctrlWrapper(getAllContacts),
+    getOneContact: ctrlWrapper(getOneContact),
+    deleteContact: ctrlWrapper(deleteContact),
+    createContact: ctrlWrapper(createContact),
+    updateContact: ctrlWrapper(updateContact),
+    updateStatusContact: ctrlWrapper(updateStatusContact),
+};
