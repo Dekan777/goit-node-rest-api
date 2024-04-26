@@ -26,4 +26,6 @@ const sendEmail = data => {
     return transporter.sendMail(email);
 };
 
+
 export default sendEmail;
+

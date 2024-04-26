@@ -2,10 +2,11 @@ import express from 'express';
 
 const authRouter = express.Router();
 import validateBody from '../middlewares/validateBody.js';
-import { userSignupSchema, userSigninSchema } from '../schemas/usersSchemas.js';
+import { userSignupSchema, userSigninSchema, emailSchemas } from '../schemas/usersSchemas.js';
 import authControllers from '../controllers/authControllers.js';
 import authenticate from '../middlewares/authenticate.js';
 import upload from '../middlewares/upload.js';
+import emailControllers from '../controllers/emailControllers.js';
 
 
 //signup
@@ -32,5 +33,12 @@ authRouter.patch(
 );
 
 
+authRouter.post(
+    '/verify',
+    validateBody(emailSchemas),
+    emailControllers.resendVerifyEmail
+);
+
+authRouter.get('/verify/:verificationToken', emailControllers.verifyEmail);
 
 export default authRouter;
