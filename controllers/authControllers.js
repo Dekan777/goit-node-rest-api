@@ -7,8 +7,11 @@ import fs from 'fs/promises';
 import path from 'path';
 import gravatar from 'gravatar';
 import Jimp from 'jimp';
+import { nanoid } from 'nanoid';
+import sendEmail from '../helpers/sendlerEmail.js';
 
-const { JWT_SECRET } = process.env;
+
+const { JWT_SECRET, PROJECT_URL } = process.env;
 
 const avatarsPath = path.resolve('public', 'avatars');
 
@@ -22,17 +25,34 @@ const signup = async (req, res) => {
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
+
     const avatarURL = gravatar.url(email);
+
+    const verificationToken = nanoid();
 
     const newUser = await authServices.signup({
         ...req.body,
         password: hashPassword,
         avatarURL,
+        verificationToken,
     });
 
-    res.status(201).json({
-        user: newUser,
-    });
+    const mail = {
+        to: email,
+        subject: 'Verify email',
+        html: `<p>Hello, thank you for using our service, please confirm your email </p>
+      <a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Verify email</a>`,
+    };
+
+    try {
+        await sendEmail(mail);
+        return res.status(201).json({
+            user: newUser,
+            message: 'Verification email sent',
+        });
+    } catch (error) {
+        return res.status(500).json(error.message);
+    }
 };
 
 const signin = async (req, res) => {
