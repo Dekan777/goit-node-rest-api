@@ -1,104 +1,64 @@
-import HttpError from '../helpers/HttpError.js';
-import ctrlWrapper from '../middlewares/ctrlWrapper.js';
-import * as authServices from '../services/authServices.js';
 import bcrypt from 'bcrypt';
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import Jimp from 'jimp';
 import fs from 'fs/promises';
 import path from 'path';
 import gravatar from 'gravatar';
-import Jimp from 'jimp';
+import 'dotenv/config';
+import * as authServices from '../services/authServices.js';
 import { nanoid } from 'nanoid';
-import sendEmail from '../helpers/sendlerEmail.js';
 
+import ctrlWrapper from '../middlewares/ctrlWrapper.js';
+import HttpError from '../helpers/HttpError.js';
+import sendEmail from '../helpers/sendlerEmail.js';
 
 const { JWT_SECRET, PROJECT_URL } = process.env;
 
 const avatarsPath = path.resolve('public', 'avatars');
 
-const signup = async (req, res, next) => {
+const signup = async (req, res) => {
+    const { email, password } = req.body;
+    const user = await authServices.findUser({ email });
+
+    if (user) {
+        throw HttpError(409, 'Email in use');
+    }
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    const avatarURL = gravatar.url(email);
+
+    const verificationToken = nanoid();
+
+    const newUser = await authServices.signup({
+        ...req.body,
+        password: hashPassword,
+        avatarURL,
+        verificationToken,
+    });
+
+    const mail = {
+        to: email,
+        subject: 'Verify email',
+        html: `<p>Hello, thank you for using our service, please confirm your email </p>
+    <a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Verify email</a>`,
+    };
+
     try {
-        const { email, password } = req.body;
-
-        // Проверка наличия пользователя с этим электронным письмом
-        const existingUser = await authServices.findUser({ email });
-        if (existingUser) {
-            return res.status(409).json({ message: 'Email in use' });
-        }
-
-        // Генерация хэшированного пароля, аватара и токена верификации
-        const hashPassword = await bcrypt.hash(password, 10);
-        const avatarURL = gravatar.url(email);
-        const verificationToken = nanoid();
-
-        // Создание письма для верификации
-        const mail = {
-            to: email,
-            subject: 'Verify your email',
-            html: `<p>Thank you for signing up! Please confirm your email:</p>
-                   <a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Verify email</a>`,
-        };
-
-        // Попытка отправить электронное письмо
-        await sendEmail(mail); // Если отправка завершилась неудачей, произойдёт исключение
-
-        // Если письмо успешно отправлено, создаём пользователя
-        const newUser = await authServices.signup({
-            email,
-            password: hashPassword,
-            avatarURL,
-            verificationToken,
-        });
-
-        // Ответ об успешном создании
-        res.status(201).json({
-            user: {
-                email: newUser.email,
-                avatarURL: newUser.avatarURL,
-                verificationToken: newUser.verificationToken,
-            },
+        await sendEmail(mail);
+        return res.status(201).json({
+            user: newUser,
+            message: 'Verification email sent',
         });
     } catch (error) {
-        // Обработка ошибок
-        next(error);
+        return res.status(500).json(error.message);
     }
 };
-
-// const signup = async (req, res) => {
-//     const { email, password } = req.body;
-//     const user = await authServices.findUser({ email });
-
-//     if (user) {
-//         throw HttpError(409, 'Email in use');
-//     }
-
-//     const hashPassword = await bcrypt.hash(password, 10);
-//     const avatarURL = gravatar.url(email);
-//     const verificationToken = nanoid();
-
-//     const newUser = await authServices.signup({
-//         ...req.body,
-//         password: hashPassword,
-//         avatarURL,
-//         verificationToken,
-//     });
-
-//     const mail = {
-//         to: email,
-//         subject: 'Verify email',
-//         html: `<p>Hello, thank you for using our service, please confirm your email </p>
-//         <a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Verify email</a>`,
-//     };
-
-//     await sendEmail(mail);
-
-//     res.status(201).json({
-//         user: newUser,
-//     });
-// };
 
 const signin = async (req, res) => {
     const { email, password } = req.body;
     const user = await authServices.findUser({ email });
+
     if (!user) {
         throw HttpError(401, 'Email or password is invalid');
     }
@@ -108,10 +68,17 @@ const signin = async (req, res) => {
         throw HttpError(401, 'Email or password is invalid');
     }
 
+    if (!user.verify) {
+        return res
+            .status(401)
+            .json({ message: 'Email not verified. Access denied' });
+    }
+
     const { _id: id } = user;
 
     const payload = {
         id,
+        email,
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '23h' });
@@ -144,8 +111,6 @@ const updateAvatar = async (req, res) => {
     if (!req.file) throw HttpError(400, 'The file was not found');
 
     const { _id } = req.user;
-
-
     const { path: tempUpload, originalname } = req.file;
 
     const image = await Jimp.read(tempUpload);

@@ -27,5 +27,5 @@ const sendEmail = data => {
 };
 
 
-export default sendEmail;
 
+export default sendEmail;
