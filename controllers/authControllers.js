@@ -12,8 +12,6 @@ import sendEmail from '../helpers/sendlerEmail.js';
 
 
 const { JWT_SECRET, PROJECT_URL } = process.env;
-
-const avatarsPath = path.resolve('public', 'avatars');
 const signup = async (req, res, next) => {
     try {
         const { email, password } = req.body;
