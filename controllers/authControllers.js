@@ -14,7 +14,6 @@ import sendEmail from '../helpers/sendlerEmail.js';
 const { JWT_SECRET, PROJECT_URL } = process.env;
 
 const avatarsPath = path.resolve('public', 'avatars');
-
 const signup = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -39,7 +38,7 @@ const signup = async (req, res, next) => {
         };
 
         // Попытка отправить электронное письмо
-        await sendEmail(mail); // Если отправка завершилась неудачей, произойдёт исключение
+        await sendEmail(mail);
 
         // Если письмо успешно отправлено, создаём пользователя
         const newUser = await authServices.signup({
@@ -49,16 +48,14 @@ const signup = async (req, res, next) => {
             verificationToken,
         });
 
-        // Ответ об успешном создании
+        // Ответ об успешном создании с открытым паролем (небезопасно)
         res.status(201).json({
             user: {
                 email: newUser.email,
-                avatarURL: newUser.avatarURL,
-                verificationToken: newUser.verificationToken,
+                password: password, // Возврат открытого пароля (небезопасно)
             },
         });
     } catch (error) {
-        // Обработка ошибок
         next(error);
     }
 };
