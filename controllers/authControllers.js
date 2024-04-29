@@ -94,6 +94,7 @@ const signup = async (req, res, next) => {
 const signin = async (req, res) => {
     const { email, password } = req.body;
     const user = await authServices.findUser({ email });
+
     if (!user) {
         throw HttpError(401, 'Email or password is invalid');
     }
@@ -103,10 +104,17 @@ const signin = async (req, res) => {
         throw HttpError(401, 'Email or password is invalid');
     }
 
+    if (!user.verify) {
+        return res
+            .status(401)
+            .json({ message: 'Email not verified. Access denied' });
+    }
+
     const { _id: id } = user;
 
     const payload = {
         id,
+        email,
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '23h' });
